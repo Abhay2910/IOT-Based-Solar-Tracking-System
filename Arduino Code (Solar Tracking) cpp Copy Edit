@@ -1,0 +1,57 @@
+#include <Servo.h>
+
+Servo servoX;  // For horizontal movement
+Servo servoY;  // For vertical movement
+
+int ldrTopLeft = A0;
+int ldrTopRight = A1;
+int ldrBottomLeft = A2;
+int ldrBottomRight = A3;
+
+int posX = 90;  // Initial servo positions
+int posY = 90;
+
+void setup() {
+  servoX.attach(9);
+  servoY.attach(10);
+
+  servoX.write(posX);
+  servoY.write(posY);
+
+  pinMode(ldrTopLeft, INPUT);
+  pinMode(ldrTopRight, INPUT);
+  pinMode(ldrBottomLeft, INPUT);
+  pinMode(ldrBottomRight, INPUT);
+  
+  Serial.begin(9600);
+}
+
+void loop() {
+  int tl = analogRead(ldrTopLeft);
+  int tr = analogRead(ldrTopRight);
+  int bl = analogRead(ldrBottomLeft);
+  int br = analogRead(ldrBottomRight);
+
+  int topAvg = (tl + tr) / 2;
+  int bottomAvg = (bl + br) / 2;
+  int leftAvg = (tl + bl) / 2;
+  int rightAvg = (tr + br) / 2;
+
+  int tolerance = 50;  // Adjust as needed
+
+  // Vertical control
+  if (abs(topAvg - bottomAvg) > tolerance) {
+    if (topAvg > bottomAvg && posY < 180) posY++;
+    else if (topAvg < bottomAvg && posY > 0) posY--;
+    servoY.write(posY);
+  }
+
+  // Horizontal control
+  if (abs(leftAvg - rightAvg) > tolerance) {
+    if (leftAvg > rightAvg && posX < 180) posX++;
+    else if (leftAvg < rightAvg && posX > 0) posX--;
+    servoX.write(posX);
+  }
+
+  delay(200);
+}
